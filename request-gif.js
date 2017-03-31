@@ -21,6 +21,7 @@ function fetchAndDisplayGif(event) {
     // get the user's input text from the DOM
     var searchQuery = "Jackson+5+"+$('tag').val(); // TODO should be e.g. "dance"
 
+
     // configure a few parameters to attach to our request
     var params = {
         api_key: "dc6zaTOxFJmzC",
@@ -28,46 +29,54 @@ function fetchAndDisplayGif(event) {
         q: searchQuery // TODO COMPLETED should be e.g. "jackson 5 dance"
     };
 
+    var captchaAnswer = $('#captcha').val();
+
     // make an ajax request for a random GIF
-    $.ajax({
-        url: "http://api.giphy.com/v1/gifs/search", // TODO COMPLETED where should this request be sent?
-        data: params, // attach those extra parameters onto the request
-        success: function(response) {
-            // if the response comes back successfully, the code in here will execute.
 
-            // jQuery passes us the `response` variable, a regular javascript object created from the JSON the server gave us
-            console.log("we received a response!");
-            console.log(response);
+        if (captchaAnswer == 5) {
+            $('#feedback').removeAttr("class");
+            $('#feedback').attr("hidden", false);
+            $('#feedback').text("Loading...");
+            $.ajax({
+            url: "http://api.giphy.com/v1/gifs/search", // TODO COMPLETED where should this request be sent?
+            data: params, // attach those extra parameters onto the request
+            success: function(response) {
+                // if the response comes back successfully, the code in here will execute.
 
-            gifs = []
+                // jQuery passes us the `response` variable, a regular javascript object created from the JSON the server gave us
 
-            // build an array of all returned gifs
-            response.data.forEach(function (gif) {
-                gifs.push(gif.images.original.url);
-            });
+                console.log("we received a response!");
+                console.log(response);
 
-            // get a random gif from the returned results
-            var number = 1 + Math.floor(Math.random() * 100 - 1);
-            selectedGif = gifs[number];
+                gifs = []
 
-            // TODO
-            $('#gif').attr('src', selectedGif);
-            // 2. hide the feedback message and display the image
-            setGifLoadedStatus(true);
-        },
-        error: function() {
-            // if something went wrong, the code in here will execute instead of the success function
+                // build an array of all returned gifs
+                response.data.forEach(function (gif) {
+                    gifs.push(gif.images.original.url);
+                });
 
-            // give the user an error message
-            $("#feedback").text("Sorry, could not load GIF. Try again!");
-            setGifLoadedStatus(false);
-        }
-    });
 
-    // TODO COMPLETED
-    // give the user a "Loading..." message while they wait
-    $('#feedback').attr("hidden", false);
-    $('#feedback').text("Loading...")
+                // get a random gif from the returned results
+                var number = 1 + Math.floor(Math.random() * 100 - 1);
+                selectedGif = gifs[number];
+
+                $('#gif').attr('src', selectedGif);
+                setGifLoadedStatus(true);
+            },
+            error: function() {
+                // if something went wrong, the code in here will execute instead of the success function
+
+                // give the user an error message
+                $("#feedback").text("Sorry, could not load GIF. Try again!");
+                setGifLoadedStatus(false);
+            }
+        });
+    } else {
+        $('#gif').removeAttr('src');
+        $('#feedback').attr("hidden", false);
+        $('#feedback').attr("class", "text-danger");
+        $('#feedback').text("Sorry, no GIFs for you!");
+    }
 
 }
 
